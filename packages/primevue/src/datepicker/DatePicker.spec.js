@@ -125,17 +125,11 @@ describe('DatePicker.vue', () => {
 
     // Regression test for PrimeVue issue #7569:
     // When a DatePicker is used inside a form context (with a "name" prop), selecting the same
-    // date twice in a row causes the input to display the raw Date.toString() format instead of
-    // the configured dateFormat string. The root cause is that the "name" prop is propagated to
-    // the inner InputText component, which also registers with the form via $pcForm. When a date
-    // is selected, the form's onChange callback stores the raw Date object in the field state.
-    // InputText's $formValue watcher then sets d_value to this Date object, and Vue's template
-    // binding (:value="d_value") re-renders the input with Date.toString() — overwriting the
-    // correctly formatted string that DatePicker set directly on the DOM element.
-    //
-    // This test is expected to fail while the bug exists in PrimeVue. Once PrimeVue fixes
-    // the issue, this test will pass and the it.fails() wrapper should be removed.
-    it.fails('should keep formatted input value when the same date is selected twice inside a form context (fix: PrimeVue #7569)', async () => {
+    // date twice in a row caused the input to display the raw Date.toString() format instead of
+    // the configured dateFormat string. The root cause was that the "name" prop was propagated
+    // to the inner InputText component, which double-registered with the form. The fix is to
+    // not forward "name" to InputText (DatePicker handles form registration itself).
+    it('should keep formatted input value when the same date is selected twice inside a form context (fix: PrimeVue #7569)', async () => {
         // Create a reactive form state mock that simulates PrimeVue's Form / useForm context.
         const fieldStates = reactive({});
 
